@@ -33,7 +33,7 @@
 // cli
 // $ pdfconcat <page1-dir> <page2-dir> append|all  or debug run with launch.json
 // place page1-dir page2-dir on your $home outpu dir will gen after cli exec
-// so you can type your cli command line like $ pdfconcat page1 page2 append| all
+// so you can type your cli command line like $ pdfconcat page1 page2 append|all
 // no need full path of dir
 //
 // on .csjpro for free no charge for you
