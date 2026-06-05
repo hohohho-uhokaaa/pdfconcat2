@@ -1,5 +1,5 @@
 //
-// pdfconcat  concatinate 2 pdf files in 1 (append) or all pdfs in 1 pdf file with page appending order
+// pdfconcat2  concatinate 2 pdf files in 1 (append) or all pdfs in 1 pdf file with page appending order
 // coded by google gemini
 // for all person who hates such a f*cking damn work by hand also em NA-KA-MA!!
 // 06/03/2026 Ver. 0.2
@@ -31,9 +31,9 @@
 // generates allin1.pdf in this page order
 //
 // cli
-// $ pdfconcat <page1-dir> <page2-dir> append|all  or debug run with launch.json
+// $ pdfconcat2 <page1-dir> <page2-dir> append|all  or debug run with launch.json
 // place page1-dir page2-dir on your $home outpu dir will gen after cli exec
-// so you can type your cli command line like $ pdfconcat page1 page2 append|all
+// so you can type your cli command line like $ pdfconcat2 page1 page2 append|all
 // no need full path of dir
 //
 // on .csjpro for free no charge for you
@@ -59,16 +59,15 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
-using pdfconcat.Properties;
 
-namespace pdfconcat;
+namespace pdfconcat2;
 
 class Program
 {
     static void Main(string[] args)
     {
         Console.WriteLine(string.Format(
-            Messages.DebugArgCount,
+            pdfconcat2.Properties.Messages.DebugArgCount,
             args.Length,
             string.Join(", ", args)
         ));
@@ -85,13 +84,13 @@ class Program
 
         if (mode != "append" && mode != "all")
         {
-            Console.WriteLine(Messages.ErrorMode);
+            Console.WriteLine(pdfconcat2.Properties.Messages.ErrorMode);
             return;
         }
 
         if (!Directory.Exists(dir1) || !Directory.Exists(dir2))
         {
-            Console.WriteLine(Messages.DirectoryNotFound);
+            Console.WriteLine(pdfconcat2.Properties.Messages.DirectoryNotFound);
             return;
         }
 
@@ -110,7 +109,7 @@ class Program
             // ステップ 1: 個別ペアの結合（ここで要件通りのしおりを各PDFに埋め込む）
             // =================================================================
             Console.WriteLine(string.Format(
-                Messages.Step1Start,
+                pdfconcat2.Properties.Messages.Step1Start,
                 mode
             ));
 
@@ -128,7 +127,7 @@ class Program
                 if (!File.Exists(file2Path))
                 {
                     Console.WriteLine(string.Format(
-                        Messages.FileNotFound,
+                        pdfconcat2.Properties.Messages.FileNotFound,
                         fileName
                     ));
                     continue;
@@ -136,7 +135,7 @@ class Program
 
                 string singleOutputPath = Path.Combine(outputDir, fileName);
                 Console.WriteLine(string.Format(
-                    Messages.ProcessingFile,
+                    pdfconcat2.Properties.Messages.ProcessingFile,
                     fileName
                 ));
                 string bookmarkTitle = Path.GetFileNameWithoutExtension(fileName);
@@ -155,14 +154,14 @@ class Program
 
             if (processedCount == 0)
             {
-                Console.WriteLine(Messages.NoPairsFound);
+                Console.WriteLine(pdfconcat2.Properties.Messages.NoPairsFound);
                 return;
             }
 
             // =================================================================
             // ステップ 2: 個別PDFを統合（個別ファイルが持つしおり構造を維持してマージ）
             // =================================================================
-            Console.WriteLine($"\n{Messages.Step2Start}");
+            Console.WriteLine($"\n{pdfconcat2.Properties.Messages.Step2Start}");
 
             string[] generatedOutputs = Directory.GetFiles(outputDir, "*.pdf")
                 .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^\d{8}\.pdf$", RegexOptions.IgnoreCase))
@@ -174,7 +173,7 @@ class Program
                 foreach (string outputPath in generatedOutputs)
                 {
                     Console.WriteLine(string.Format(
-                        Messages.Step2Adding,
+                        pdfconcat2.Properties.Messages.Step2Adding,
                         Path.GetFileName(outputPath)
                     ));
 
@@ -207,21 +206,21 @@ class Program
                 finalDocument.Save(finalAllInOnePath);
             }
 
-            Console.WriteLine($"\n{Messages.CompleteSuccess}");
+            Console.WriteLine($"\n{pdfconcat2.Properties.Messages.CompleteSuccess}");
             Console.WriteLine(string.Format(
-                Messages.OutputDirectory,
+                pdfconcat2.Properties.Messages.OutputDirectory,
                 outputDir,
                 processedCount
             ));
             Console.WriteLine(string.Format(
-                Messages.FinalFile,
+                pdfconcat2.Properties.Messages.FinalFile,
                 finalAllInOnePath
             ));
         }
         catch (Exception ex)
         {
             Console.WriteLine(string.Format(
-                Messages.ErrorOccurred,
+                pdfconcat2.Properties.Messages.ErrorOccurred,
                 ex.Message
             ));
         }
@@ -229,9 +228,9 @@ class Program
 
     static void ShowUsage()
     {
-        Console.WriteLine(Messages.UsageHeader);
-        Console.WriteLine(Messages.UsageFormat);
-        Console.WriteLine(Messages.UsageExample);
+        Console.WriteLine(pdfconcat2.Properties.Messages.UsageHeader);
+        Console.WriteLine(pdfconcat2.Properties.Messages.UsageFormat);
+        Console.WriteLine(pdfconcat2.Properties.Messages.UsageExample);
     }
 
     /// <summary>
