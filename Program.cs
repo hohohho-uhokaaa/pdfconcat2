@@ -79,13 +79,8 @@ class Program
         string dir2 = args[1];
         string mode = args[2].ToLower();
 
-        // フォルダの階層定義
-        string? projectRoot = Path.GetDirectoryName(Path.GetFullPath(dir1.TrimEnd(Path.DirectorySeparatorChar)));
-        if (projectRoot == null)
-        {
-            Console.WriteLine("エラー: 親ディレクトリのパスを取得できませんでした。");
-            return;
-        }
+        // ベースのディレクトリは user の $home
+        string projectRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         string outputDir = Path.Combine(projectRoot, "output");
         string finalAllInOnePath = Path.Combine(outputDir, "allin1.pdf");
 
@@ -105,7 +100,7 @@ class Program
                 return;
             }
 
-            // 出力先ディレクトリがなければ作成（すでにある場合は一度中身をクリアするか、そのまま上書き）
+            // 出力先ディレクトリがなければ作成
             if (!Directory.Exists(outputDir))
             {
                 Directory.CreateDirectory(outputDir);
@@ -137,13 +132,16 @@ class Program
                     string singleOutputPath = Path.Combine(outputDir, fileName);
                     Console.WriteLine($"個別ファイル生成中: {fileName}...");
 
+                    // しおり用にファイル名から拡張子を除いた「8桁の数字」を取得
+                    string bookmarkTitle = Path.GetFileNameWithoutExtension(fileName);
+
                     if (mode == "append")
                     {
-                        CreateSingleAppendPdf(file1Path, file2Path, singleOutputPath);
+                        CreateSingleAppendPdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
                     }
                     else if (mode == "all")
                     {
-                        CreateSingleInterleavePdf(file1Path, file2Path, singleOutputPath);
+                        CreateSingleInterleavePdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
                     }
 
                     processedCount++;
@@ -182,6 +180,7 @@ class Program
                     using (PdfDocument inputPart = PdfReader.Open(outputPath, PdfDocumentOpenMode.Import))
                     {
                         // そのファイルの全ページを、最終的なPDFへそのまま追加（append）していく
+                        // ※Importモードで開いたドキュメントのしおりは自動で引き継がれます
                         for (int i = 0; i < inputPart.PageCount; i++)
                         {
                             finalDocument.AddPage(inputPart.Pages[i]);
@@ -204,9 +203,9 @@ class Program
     }
 
     /// <summary>
-    /// 【Step1用】 file1 の後ろに file2 を丸ごと結合した独立ファイルを作成します
+    /// 【Step1用】 file1 の後ろに file2 を丸ごと結合した独立ファイルを作成します（しおり追加対応）
     /// </summary>
-    static void CreateSingleAppendPdf(string file1, string file2, string outputPath)
+    static void CreateSingleAppendPdf(string file1, string file2, string outputPath, string bookmarkTitle)
     {
         using (PdfDocument outputDocument = new PdfDocument())
         {
@@ -221,15 +220,27 @@ class Program
                 {
                     outputDocument.AddPage(inputDocument2.Pages[i]);
                 }
+
+                // 🌟 しおりの追加処理
+                if (outputDocument.PageCount >= 1)
+                {
+                    // 1ページ目へのしおり（数字8桁）
+                    outputDocument.Outlines.Add(bookmarkTitle, outputDocument.Pages[0]);
+                }
+                if (outputDocument.PageCount >= 2)
+                {
+                    // 2ページ目へのしおり（「資料」）
+                    outputDocument.Outlines.Add("資料", outputDocument.Pages[1]);
+                }
             }
             outputDocument.Save(outputPath);
         }
     }
 
     /// <summary>
-    /// 【Step1用】 file1 と file2 のページを1枚ずつ交互に結合した独立ファイルを作成します
+    /// 【Step1用】 file1 と file2 のページを1枚ずつ交互に結合した独立ファイルを作成します（しおり追加対応）
     /// </summary>
-    static void CreateSingleInterleavePdf(string file1, string file2, string outputPath)
+    static void CreateSingleInterleavePdf(string file1, string file2, string outputPath, string bookmarkTitle)
     {
         using (PdfDocument outputDocument = new PdfDocument())
         {
@@ -250,6 +261,18 @@ class Program
                     {
                         outputDocument.AddPage(inputDocument2.Pages[i]);
                     }
+                }
+
+                // 🌟 しおりの追加処理
+                if (outputDocument.PageCount >= 1)
+                {
+                    // 1ページ目へのしおり（数字8桁）
+                    outputDocument.Outlines.Add(bookmarkTitle, outputDocument.Pages[0]);
+                }
+                if (outputDocument.PageCount >= 2)
+                {
+                    // 2ページ目へのしおり（「資料」）
+                    outputDocument.Outlines.Add("資料", outputDocument.Pages[1]);
                 }
             }
             outputDocument.Save(outputPath);
