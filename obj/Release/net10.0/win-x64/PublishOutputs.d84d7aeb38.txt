@@ -1,2 +1,0 @@
-/home/tomjerry/Projects/Sources/dotnet/cs/pdfconcat/pdfconcat/bin/Release/net10.0/win-x64/publish/pdfconcat.pdb
-/home/tomjerry/Projects/Sources/dotnet/cs/pdfconcat/pdfconcat/bin/Release/net10.0/win-x64/publish/pdfconcat.exe
