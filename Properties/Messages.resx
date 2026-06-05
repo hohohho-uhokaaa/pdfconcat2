@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Microsoft ResX ファイル形式 -->
+  <!-- Version 2.0 -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="3" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="CompleteSuccess" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>🎉 すべての処理が完了しました！</value>
+  </data>
+  <data name="DebugArgCount" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>【デバッグ】受け取った引数の数: {0} 個, 中身: {1}</value>
+  </data>
+  <data name="DirectoryNotFound" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>指定された入力ディレクトリが存在しません。パスを確認してください。</value>
+  </data>
+  <data name="ErrorMode" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>エラー: 3つ目の引数（モード）には 'append' または 'all' を指定してください。</value>
+  </data>
+  <data name="ErrorOccurred" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>エラーが発生しました: {0}</value>
+  </data>
+  <data name="FileNotFound" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>スキップ: {0} に対応するファイルが dir2 に見つかりません。</value>
+  </data>
+  <data name="FinalFile" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>➔ 最終統合ファイル: {0}</value>
+  </data>
+  <data name="NoPairsFound" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>結合対象となるペアが1つも見つからなかったため、処理を終了します。</value>
+  </data>
+  <data name="OutputDirectory" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>➔ 個別ファイル出力先: {0} ({1} 個のPDF)</value>
+  </data>
+  <data name="ProcessingFile" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>個別ファイル生成中: {0}...</value>
+  </data>
+  <data name="Step1Start" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>--- [Step 1] 個別ペアの結合処理を開始します (モード: {0}) ---</value>
+  </data>
+  <data name="Step2Start" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>--- [Step 2] output ディレクトリ内のPDFを allin1.pdf に統合します ---</value>
+  </data>
+  <data name="Step2Adding" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>allin1 に追加中: {0}</value>
+  </data>
+  <data name="UsageExample" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>例: dotnet run /path/to/page1 /path/to/page2 all</value>
+  </data>
+  <data name="UsageFormat" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>dotnet run &lt;dir1のパス&gt; &lt;dir2のパス&gt; &lt;mode(append|all)&gt;</value>
+  </data>
+  <data name="UsageHeader" type="System.Resources.ResXString, System.Windows.Forms">
+    <value>【使い方】</value>
+  </data>
+</root>
