@@ -14,12 +14,12 @@
 // assumption: each pdf file contains only one page.  more than 2 pages will change its appending order between append or all. 
 //
 //
-// append mode: append
+// append mode: append  outline also added ist page filename 2nd page some word
 // page1/00000001.pdf + page2/00000001.pdf -> output/00000001.pdf
 // page1/00000002.pdf + page2/00000002.pdf -> output/00000002.pdf
 // page1/00000003.pdf + page2/00000003.pdf -> output/00000003.pdf
 //
-// append mode : all
+// append mode : all 
 // page1/00000001.pdf + page2/00000001.pdf + page1/00000002.pdf + page2/00000002.pdf + page1/00000003.pdf + page2/00000003.pdf -> output/alllin1.pdf
 //
 // where 2 pages in pdf files in append mode
