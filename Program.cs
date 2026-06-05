@@ -65,91 +65,75 @@ class Program
     {
         Console.WriteLine($"【デバッグ】受け取った引数の数: {args.Length} 個, 中身: {string.Join(", ", args)}");
 
-        // 引数の数が足りない場合は使い方を表示して終了
         if (args.Length < 3)
         {
-            Console.WriteLine("【使い方】");
-            Console.WriteLine("dotnet run <dir1のパス> <dir2のパス> <mode(append|all)>");
-            Console.WriteLine("例: dotnet run /path/to/page1 /path/to/page2 all");
+            ShowUsage();
             return;
         }
 
-        // 引数からパラメータを取得
         string dir1 = args[0];
         string dir2 = args[1];
         string mode = args[2].ToLower();
 
-        // ベースのディレクトリは user の $home
-        string projectRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        string outputDir = Path.Combine(projectRoot, "output");
-        string finalAllInOnePath = Path.Combine(outputDir, "allin1.pdf");
-
-        // モードのバリデーション
         if (mode != "append" && mode != "all")
         {
             Console.WriteLine("エラー: 3つ目の引数（モード）には 'append' または 'all' を指定してください。");
             return;
         }
 
+        if (!Directory.Exists(dir1) || !Directory.Exists(dir2))
+        {
+            Console.WriteLine("指定された入力ディレクトリが存在しません。パスを確認してください。");
+            return;
+        }
+
+        string projectRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string outputDir = Path.Combine(projectRoot, "output");
+        string finalAllInOnePath = Path.Combine(outputDir, "allin1.pdf");
+
+        if (!Directory.Exists(outputDir))
+        {
+            Directory.CreateDirectory(outputDir);
+        }
+
         try
         {
-            // ディレクトリの存在チェック
-            if (!Directory.Exists(dir1) || !Directory.Exists(dir2))
-            {
-                Console.WriteLine("指定された入力ディレクトリが存在しません。パスを確認してください。");
-                return;
-            }
-
-            // 出力先ディレクトリがなければ作成
-            if (!Directory.Exists(outputDir))
-            {
-                Directory.CreateDirectory(outputDir);
-            }
-
-            // dir1 内のすべてのPDFファイルを取得
-            string[] filesInDir1 = Directory.GetFiles(dir1, "*.pdf");
-
             // =================================================================
-            // ステップ 1: dir1 と dir2 のペアを、指定された mode で個別結合して output に保存
+            // ステップ 1: 個別ペアの結合（ここで要件通りのしおりを各PDFに埋め込む）
             // =================================================================
-            Console.WriteLine($"--- [Step 1] 個別ペアの結合処理を開始します (モード: {mode}) ---");
+            Console.WriteLine($"\n--- [Step 1] 個別ペアの結合処理を開始します (モード: {mode}) ---");
+
+            string[] filesInDir1 = Directory.GetFiles(dir1, "*.pdf")
+                .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^\d{8}\.pdf$", RegexOptions.IgnoreCase))
+                .ToArray();
+
             int processedCount = 0;
 
             foreach (string file1Path in filesInDir1)
             {
                 string fileName = Path.GetFileName(file1Path);
+                string file2Path = Path.Combine(dir2, fileName);
 
-                // ファイル名が「8桁の数字.pdf」の形式かチェック
-                if (!Regex.IsMatch(fileName, @"^\d{8}\.pdf$", RegexOptions.IgnoreCase))
+                if (!File.Exists(file2Path))
                 {
+                    Console.WriteLine($"スキップ: {fileName} に対応するファイルが dir2 に見つかりません。");
                     continue;
                 }
 
-                string file2Path = Path.Combine(dir2, fileName);
+                string singleOutputPath = Path.Combine(outputDir, fileName);
+                Console.WriteLine($"個別ファイル生成中: {fileName}...");
+                string bookmarkTitle = Path.GetFileNameWithoutExtension(fileName);
 
-                if (File.Exists(file2Path))
+                if (mode == "append")
                 {
-                    string singleOutputPath = Path.Combine(outputDir, fileName);
-                    Console.WriteLine($"個別ファイル生成中: {fileName}...");
-
-                    // しおり用にファイル名から拡張子を除いた「8桁の数字」を取得
-                    string bookmarkTitle = Path.GetFileNameWithoutExtension(fileName);
-
-                    if (mode == "append")
-                    {
-                        CreateSingleAppendPdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
-                    }
-                    else if (mode == "all")
-                    {
-                        CreateSingleInterleavePdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
-                    }
-
-                    processedCount++;
+                    CreateSingleAppendPdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
                 }
-                else
+                else if (mode == "all")
                 {
-                    Console.WriteLine($"スキップ: {fileName} に対応するファイルが dir2 に見つかりません。");
+                    CreateSingleInterleavePdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
                 }
+
+                processedCount++;
             }
 
             if (processedCount == 0)
@@ -159,12 +143,10 @@ class Program
             }
 
             // =================================================================
-            // ステップ 2: 生成された output ディレクトリ内の個別PDFを「全スキャン」して 1つに統合
-            // 💡 ここでは単純にファイルを順番に追加していくだけなので、append/all の分岐は不要です！
+            // ステップ 2: 個別PDFを統合（個別ファイルが持つしおり構造を維持してマージ）
             // =================================================================
             Console.WriteLine($"\n--- [Step 2] output ディレクトリ内のPDFを allin1.pdf に統合します ---");
 
-            // output 内の「8桁の数字.pdf」に一致するファイルをファイル名順（昇順）にソートして取得
             string[] generatedOutputs = Directory.GetFiles(outputDir, "*.pdf")
                 .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^\d{8}\.pdf$", RegexOptions.IgnoreCase))
                 .OrderBy(f => Path.GetFileName(f))
@@ -176,19 +158,32 @@ class Program
                 {
                     Console.WriteLine($"allin1 に追加中: {Path.GetFileName(outputPath)}");
 
-                    // 個別に出力したPDFファイルを「読み込みモード」で開く
+                    // 💡 しおりの階層構造を壊さずにコピーするため、各ページの参照元ドキュメントを開き、
+                    // ページ追加と同時に、そのファイルが持つ Outlines を finalDocument に移植します
                     using (PdfDocument inputPart = PdfReader.Open(outputPath, PdfDocumentOpenMode.Import))
                     {
-                        // そのファイルの全ページを、最終的なPDFへそのまま追加（append）していく
-                        // ※Importモードで開いたドキュメントのしおりは自動で引き継がれます
+                        int basePageIndex = finalDocument.PageCount;
+
+                        // ページの実体を移行
                         for (int i = 0; i < inputPart.PageCount; i++)
                         {
                             finalDocument.AddPage(inputPart.Pages[i]);
                         }
+
+                        // 各中間ファイルが持っているしおり構造（Outlines）を、統合先ドキュメントの正しいページ位置へ再マッピングして追加
+                        foreach (PdfOutline outline in inputPart.Outlines)
+                        {
+                            // 元のしおりがどのページを指していたか特定
+                            int originalTargetIdx = inputPart.Pages.Cast<PdfPage>().ToList().IndexOf(outline.DestinationPage);
+                            if (originalTargetIdx >= 0)
+                            {
+                                // 統合先ドキュメント上の正しい絶対ページにしおりを紐付け直す
+                                finalDocument.Outlines.Add(outline.Title, finalDocument.Pages[basePageIndex + originalTargetIdx]);
+                            }
+                        }
                     }
                 }
 
-                // 最後に1つの大きなファイルとして保存
                 finalDocument.Save(finalAllInOnePath);
             }
 
@@ -202,8 +197,15 @@ class Program
         }
     }
 
+    static void ShowUsage()
+    {
+        Console.WriteLine("【使い方】");
+        Console.WriteLine("dotnet run <dir1のパス> <dir2のパス> <mode(append|all)>");
+        Console.WriteLine("例: dotnet run /path/to/page1 /path/to/page2 all");
+    }
+
     /// <summary>
-    /// 【Step1用】 file1 の後ろに file2 を丸ごと結合した独立ファイルを作成します（しおり追加対応）
+    /// 【Step1用】 file1 の後ろに file2 を丸ごと結合し、要件通りのしおりを追加
     /// </summary>
     static void CreateSingleAppendPdf(string file1, string file2, string outputPath, string bookmarkTitle)
     {
@@ -221,16 +223,13 @@ class Program
                     outputDocument.AddPage(inputDocument2.Pages[i]);
                 }
 
-                // 🌟 しおりの追加処理
                 if (outputDocument.PageCount >= 1)
                 {
-                    // 1ページ目へのしおり（数字8桁）
                     outputDocument.Outlines.Add(bookmarkTitle, outputDocument.Pages[0]);
                 }
                 if (outputDocument.PageCount >= 2)
                 {
-                    // 2ページ目へのしおり（「資料」）
-                    outputDocument.Outlines.Add("資料", outputDocument.Pages[1]);
+                    outputDocument.Outlines.Add("資料", outputDocument.Pages[inputDocument1.PageCount]); // file2の先頭ページ
                 }
             }
             outputDocument.Save(outputPath);
@@ -238,7 +237,7 @@ class Program
     }
 
     /// <summary>
-    /// 【Step1用】 file1 と file2 のページを1枚ずつ交互に結合した独立ファイルを作成します（しおり追加対応）
+    /// 【Step1用】 file1 と file2 を交互結合し、page1由来の1ページ目のみにしおりを追加
     /// </summary>
     static void CreateSingleInterleavePdf(string file1, string file2, string outputPath, string bookmarkTitle)
     {
@@ -263,19 +262,14 @@ class Program
                     }
                 }
 
-                // 🌟 しおりの追加処理
+                // ✨ 要件：page1の1ページ目にファイル名、page2由来には追加しない
                 if (outputDocument.PageCount >= 1)
                 {
-                    // 1ページ目へのしおり（数字8桁）
                     outputDocument.Outlines.Add(bookmarkTitle, outputDocument.Pages[0]);
-                }
-                if (outputDocument.PageCount >= 2)
-                {
-                    // 2ページ目へのしおり（「資料」）
-                    outputDocument.Outlines.Add("資料", outputDocument.Pages[1]);
                 }
             }
             outputDocument.Save(outputPath);
         }
     }
 }
+//
