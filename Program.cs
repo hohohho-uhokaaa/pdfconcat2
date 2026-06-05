@@ -2,7 +2,7 @@
 // pdfconcat  concatinate 2 pdf files in 1 (append) or all pdfs in 1 pdf file with page appending order
 // coded by google gemini
 // for all person who hates such a f*cking damn work by hand also em NA-KA-MA!!
-// 06/03/2026 Ver. 0.1
+// 06/03/2026 Ver. 0.2
 //
 // directory tree and pdf file store
 //
@@ -272,4 +272,3 @@ class Program
         }
     }
 }
-//
