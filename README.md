@@ -1,4 +1,4 @@
-# pdfconcat
+# pdfconcat2
 
 複数のPDFファイルを効率的に結合するための.NETコンソールアプリケーションです。
 
@@ -15,7 +15,7 @@
 
 ## 🚀 動作環境
 
-- .NET 6.0 以上のSDK
+- .NET 10.0 SDK
 - 依存ライブラリ:
   - `PdfSharpCore` (v1.3.67)
   - `SixLabors.ImageSharp` (v2.1.11)
@@ -29,32 +29,34 @@ git clone https://github.com/hohohho-uhokaaa/pdfconcat.git
 cd pdfconcat
 ```
 
-### 2. 依存パッケージのインストール
+### 2. ビルド
 
-#### Bash/Linux/macOS の場合
+#### Debug ビルド
 
 ```bash
-dotnet add package PdfSharpCore --version 1.3.67
-dotnet add package SixLabors.ImageSharp --version 2.1.11
+dotnet build
 ```
 
-#### PowerShell の場合
+#### Release ビルド（最適化、セルフコンテイニド）
 
-```powershell
-Install-Package PdfSharpCore -Version 1.3.67
-Install-Package SixLabors.ImageSharp -Version 2.1.11
+```bash
+# Linux x64 版
+dotnet publish -c Release -r linux-x64
+
+# Windows x64 版
+dotnet publish -c Release -r win-x64
 ```
 
-または `.csproj` ファイルに以下を追加：
+セルフコンテイニド ビルドにより、ターゲット環境に .NET がインストールされていなくても実行できます。
 
-```xml
-<ItemGroup>
-  <PackageReference Include="PdfSharpCore" Version="1.3.67" />
-  <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
-</ItemGroup>
+出力ファイルは `bin/Release/net10.0/<runtime-id>/publish/` に生成されます。
+
+### 3. テストの実行
+
+```bash
+# テスト用 PDF ファイル群があるディレクトリを指定して実行
+dotnet build -t:RunTests -p:TestSourcePath=/path/to/pdf/files
 ```
-
-その後、`dotnet restore` を実行します。
 
 ## 🛠️ 使い方
 
@@ -164,10 +166,12 @@ MIT License - 自由に使用・改変・配布できます
 
 ## 📄 バージョン履歴
 
-- **Ver. 0.2** (2026-06-05)
+- **Ver. 0.2** (2026-06-06)
   - リソースファイルを使用した多言語対応を実装
   - しおり機能の改善
   - ステップ1・ステップ2の分離処理を改善
+  - .NET 10.0 対応、セルフコンテイニド ビルド対応
+  - プロジェクト設定を最適化（トリミング、デバッグシンボル対応）
 
 - **Ver. 0.1** (2026-06-03)
   - 初版リリース
